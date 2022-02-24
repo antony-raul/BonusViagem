@@ -1,12 +1,28 @@
 import pandas as pd
-#abrir arquivos em Excel
-lista_meses = ['janeiro','fevereiro','março','abril','maio','junho']
+from twilio.rest import Client
+
 path = 'C:/Users/raulz/Downloads/Arquivos/'
-for mes in  lista_meses:
+lista_meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho']
+account_sid = 'ACc186ccd6e63519fb4d1f00268ac14704'
+auth_token = '0a5d823a4124a35f2790867201e0d36d'
+metas = []
+client = Client(account_sid, auth_token)
+
+for mes in lista_meses:
     tabela_vendas = pd.read_excel(f'{path}{mes}.xlsx')
     if (tabela_vendas['Vendas'] > 55000).any():
-        vendedor = tabela_vendas.loc[tabela_vendas['Vendas'] > 55000,'Vendedor'].values[0]
-        vendas = tabela_vendas.loc[tabela_vendas['Vendas'] > 55000,'Vendas'].values[0]
-        print(f'Vendedor {vendedor} bateu a meta, fez {vendas} vendas no mês de {mes}')
+        vendedor = tabela_vendas.loc[tabela_vendas['Vendas']
+                                     > 55000, 'Vendedor'].values
+        vendas = tabela_vendas.loc[tabela_vendas['Vendas']
+                                   > 55000, 'Vendas'].values
+        for i in range(len(vendedor)):
+            metas.append(
+                f'Vendedor(a) {vendedor[i]} bateu a meta, fez {vendas[i]} vendas no mês de {mes}')
 
-
+for j in range(len(metas)):
+    message = client.messages.create(
+        messaging_service_sid='MG57bafc18f8a1041e6c2df2b2483558d2',
+        body=metas[j],
+        to='+5588996483056',
+        from_='+19032963885'
+    )
